@@ -1,0 +1,31 @@
+# Variante "direct" do LUPIN: as duas sub-redes (motion field + AF-U-Net)
+# treinadas juntas do zero, em um único estágio — SEM o currículo de 3
+# estágios (mfunet -> afunet -> final). É a mesma classe LUPINForecaster do
+# Estágio 3, só que sem checkpoints pré-treinados e sem congelamento.
+#
+# Serve como ablação para medir o ganho do currículo em 3 estágios: compare
+# o resultado deste config com o do Estágio 3 (`model=lupin/final`) sob a
+# mesma orçamento de épocas/dados. Não é a mesma coisa que "rodar os 3
+# estágios em uma única chamada" — para isso, veja
+# `scripts/train_lupin_pipeline.sh`.
+#
+# Uso:
+#   python main.py task=train model=lupin/direct loss=lupin_direct
+
+_target_: ainpp_pb_latam.models.lupin.forecaster.LUPINForecaster
+input_timesteps: ${input_timesteps}
+input_channels: 1
+output_timesteps: ${output_timesteps}
+output_channels: 1
+motion_features: [32, 64, 128, 256]
+afunet_features: [64, 128, 256, 512]
+kernel_size: 3
+bilinear: true
+nonnegativity: "relu"
+apply_differencing: true
+persistence_blur_kernel_size: 63
+persistence_blur_sigma: 15.0
+freeze_motion_field: false
+pretrained_motion_field_checkpoint: null
+pretrained_afunet_checkpoint: null
+return_motion_field: true  # necessário: loss=lupin_direct (LUPINJointLoss) desempacota (precip, motion_field)

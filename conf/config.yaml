@@ -1,0 +1,32 @@
+# ----- Base Configuration File -----
+input_timesteps: 12
+input_channels: 1
+hidden_channels: [32, 32, 32]
+kernel_size: 7
+output_timesteps: 6
+
+task: train
+checkpoint: null
+
+
+defaults:
+  - _self_
+  - model: unet/direct
+  - discriminator: patchgan
+  - training: gan
+  - dataset: gsmap
+  - loss: hybrid_mse_ssim
+  - inference: default
+  - evaluation: default
+
+system:
+  num_workers: 4
+  pin_memory: true
+  sync_bn: false
+
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

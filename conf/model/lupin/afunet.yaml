@@ -1,0 +1,32 @@
+# Estágio 2 do currículo LUPIN (Pavlik et al., 2025): AF-U-Net (Advection-Free
+# U-Net) pré-treinada com o motion-field U-Net do Estágio 1 congelado.
+#
+# `pretrained_motion_field_checkpoint` é obrigatório na prática (deixado
+# `null` aqui para não esconder a dependência dentro do YAML) e deve apontar
+# para o `best_model.pt` salvo pelo Estágio 1. `freeze_motion_field=true`
+# já é o padrão deste arquivo, mas o comando de exemplo abaixo repete o
+# override explicitamente — é redundante-porém-inofensivo, e deixa a
+# intenção do estágio visível na própria linha de comando.
+#
+# Uso:
+#   python main.py task=train model=lupin/afunet loss=afunet \
+#       model.freeze_motion_field=true \
+#       model.pretrained_motion_field_checkpoint=/caminho/mfunet_best.pt
+
+_target_: ainpp_pb_latam.models.lupin.forecaster.LUPINForecaster
+input_timesteps: ${input_timesteps}
+input_channels: 1
+output_timesteps: ${output_timesteps}
+output_channels: 1
+motion_features: [32, 64, 128, 256]   # deve casar com conf/model/lupin/mfunet.yaml
+afunet_features: [64, 128, 256, 512]
+kernel_size: 3
+bilinear: true
+nonnegativity: "relu"
+apply_differencing: true
+persistence_blur_kernel_size: 63
+persistence_blur_sigma: 15.0
+freeze_motion_field: true
+pretrained_motion_field_checkpoint: null   # obrigatório via CLI (checkpoint do Estágio 1)
+pretrained_afunet_checkpoint: null         # não usado neste estágio (AF-U-Net parte do zero)
+return_motion_field: false   # loss=afunet é uma loss de dados simples, sem termo físico

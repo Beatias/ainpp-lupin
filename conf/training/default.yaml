@@ -1,0 +1,25 @@
+# conf/training/default.yaml
+
+# Mode flag (for the script to know it's regular training)
+mode: "supervised"
+
+epochs: 50
+lr: 0.001           # Default Learning Rate for Adam
+batch_size: 16      # Can be overwritten by dataloader, but good to have here
+
+# Specific scheduler parameters if any
+scheduler:
+  patience: 5
+  factor: 0.1
+
+checkpoint:
+  enabled: true
+  dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}/early_stopping
+  interval: 5
+  save_best: true
+
+early_stopping:
+  enabled: true
+  patience: 10
+  delta: 0.001
+  mode: 'min'

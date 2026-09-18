@@ -1,0 +1,8 @@
+# Loss do Estágio 1 do LUPIN (mesma classe de conf/loss/mfunet_physics.yaml,
+# apenas com o nome curto e autoexplicativo usado no currículo lupin/*).
+# Combina erro de dados (LogCosh) com um termo físico de divergência nula
+# sobre o campo de movimento estimado.
+_target_: ainpp_pb_latam.losses.MotionFieldConservationLoss
+beta: 0.1
+base_loss:
+  _target_: ainpp_pb_latam.losses.LogCoshLoss

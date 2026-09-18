@@ -1,0 +1,10 @@
+# Loss do Estágio 2 do LUPIN: puramente de dados (o motion field está
+# congelado, então o termo físico de MotionFieldConservationLoss não teria
+# nenhum efeito — não há gradiente fluindo para a sub-rede que ele
+# regularizaria). `crop_size` é opcional: defina, por exemplo, para 272 em
+# patches 320x320 para descartar ~24px de margem afetados pelo warp
+# semi-Lagrangiano repetido usado para montar a pilha "Lagrangiana".
+_target_: ainpp_pb_latam.losses.CenterCropLoss
+crop_size: null
+base_loss:
+  _target_: ainpp_pb_latam.losses.LogCoshLoss

@@ -1,0 +1,33 @@
+# Estágio 3 do currículo LUPIN (Pavlik et al., 2025): finetune conjunto do
+# motion-field U-Net (Estágio 1) e da AF-U-Net (Estágio 2), agora sem
+# congelamento — este é o modelo LUPIN completo.
+#
+# Uso:
+#   python main.py task=train model=lupin/final loss=lupin \
+#       model.pretrained_motion_field_checkpoint=/caminho/mfunet_best.pt \
+#       model.pretrained_afunet_checkpoint=/caminho/afunet_best.pt
+
+_target_: ainpp_pb_latam.models.lupin.forecaster.LUPINForecaster
+input_timesteps: ${input_timesteps}
+input_channels: 1
+output_timesteps: ${output_timesteps}
+output_channels: 1
+motion_features: [32, 64, 128, 256]
+afunet_features: [64, 128, 256, 512]
+kernel_size: 3
+bilinear: true
+nonnegativity: "relu"
+apply_differencing: true
+persistence_blur_kernel_size: 63
+persistence_blur_sigma: 15.0
+freeze_motion_field: false   # estágio de finetune conjunto: nada fica congelado
+pretrained_motion_field_checkpoint: null   # obrigatório via CLI (checkpoint do Estágio 1)
+pretrained_afunet_checkpoint: null         # obrigatório via CLI (checkpoint do Estágio 2)
+return_motion_field: true   # necessário: loss=lupin (LUPINJointLoss) desempacota (precip, motion_field)
+
+# Para avaliação/inferência do checkpoint final (task=evaluate / task=infer),
+# sobrescreva em tempo de carga — o checkpoint é o mesmo, só muda o formato
+# de retorno de forward(), o que evita tocar em evaluator.py/inferencer.py:
+#   python main.py task=evaluate model=lupin/final checkpoint=/caminho/final_best.pt \
+#       model.return_motion_field=false model.pretrained_motion_field_checkpoint=null \
+#       model.pretrained_afunet_checkpoint=null

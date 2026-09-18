@@ -1,0 +1,53 @@
+__pycache__/
+*.pyc
+*.pyo
+src/ainpp.egg-info/
+src/ainpp.egg-info/**
+data/
+mlruns/
+outputs/
+__pycache__/*
+tests/dummy_env/
+tests/dummy_env/**
+.agents/
+.agents/**
+samples/
+samples/**
+
+*pyc
+
+mlflow.db
+
+samples/
+
+# Environment & Secrets (AIOS)
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Dependencies (AIOS)
+node_modules/
+node_modules
+
+# Build & Logs (AIOS)
+dist/
+build/
+*.log
+logs/
+
+# IDE & OS (AIOS)
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# AIOS Local (AIOS)
+.aios-core/local/
+.claude/settings.local.json
+.aios/install-log.txt
+
+.github/agents/
+src/ainpp_pb_latam.egg-info/
+src/ainpp_pb_latam.egg-info/**

@@ -1,0 +1,10 @@
+# Loss para a variante "direct" do LUPIN (treino do zero, estágio único —
+# ver conf/model/lupin/direct.yaml). Mesma composição de conf/loss/lupin.yaml;
+# arquivo próprio apenas para manter `loss=lupin_direct` autoexplicativo e
+# independente do Estágio 3, caso os dois venham a divergir no futuro (por
+# exemplo, um beta diferente por não haver aquecimento em 2 estágios antes).
+_target_: ainpp_pb_latam.losses.LUPINJointLoss
+beta: 0.1
+crop_size: null
+base_loss:
+  _target_: ainpp_pb_latam.losses.LogCoshLoss

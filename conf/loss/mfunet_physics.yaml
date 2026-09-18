@@ -1,0 +1,4 @@
+_target_: ainpp_pb_latam.losses.MotionFieldConservationLoss
+beta: 0.1
+base_loss:
+  _target_: ainpp_pb_latam.losses.LogCoshLoss

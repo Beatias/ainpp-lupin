@@ -1,0 +1,28 @@
+# Estágio 1 do currículo LUPIN (Pavlik et al., 2025): motion-field U-Net.
+#
+# Reaproveita a classe MFUNetForecaster já existente no benchmark
+# (ainpp_pb_latam.models.mfunet) sem nenhuma alteração — este estágio É o
+# mesmo motion-field U-Net, apenas exposto sob o namespace `lupin/` para que
+# o currículo completo (mfunet -> afunet -> final) fique legível como um
+# conjunto coerente de 3 chamadas.
+#
+# `features` aqui é deliberadamente mais leve do que `conf/model/mfunet/direct.yaml`
+# (que compete como modelo autônomo do benchmark): no papel original, a
+# sub-rede estimadora de campo de movimento é bem mais barata que a AF-U-Net.
+# Se alterar `features`, replique o mesmo valor em `motion_features` de
+# conf/model/lupin/afunet.yaml e conf/model/lupin/final.yaml — o checkpoint
+# salvo aqui só carrega no Estágio 2/3 se as arquiteturas coincidirem.
+#
+# Uso:
+#   python main.py task=train model=lupin/mfunet loss=mfunet
+
+_target_: ainpp_pb_latam.models.mfunet.forecaster.MFUNetForecaster
+input_timesteps: ${input_timesteps}
+input_channels: 1
+output_timesteps: ${output_timesteps}
+output_channels: 1
+features: [32, 64, 128, 256]
+kernel_size: 3
+bilinear: true
+nonnegativity: "relu"
+return_motion_field: true  # necessário: loss=mfunet (MotionFieldConservationLoss) desempacota (precip, motion_field)

@@ -1,0 +1,9 @@
+# Loss do Estágio 3 (finetune conjunto) do LUPIN: combina erro de dados com
+# o mesmo termo físico de divergência nula usado no Estágio 1, agora sobre
+# o campo de movimento re-treinado junto com a AF-U-Net. `crop_size`
+# opcional (ver conf/loss/afunet.yaml).
+_target_: ainpp_pb_latam.losses.LUPINJointLoss
+beta: 0.1
+crop_size: null
+base_loss:
+  _target_: ainpp_pb_latam.losses.LogCoshLoss

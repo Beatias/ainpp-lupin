@@ -1,0 +1,26 @@
+# conf/training/gan.yaml
+
+# Engine Configuration
+mode: "gan"       # Helpful flag for your script to know which engine to call
+epochs: 100
+
+# Optimization
+lr_g: 0.0002      # Generator Learning Rate (Usually lower than direct supervision)
+lr_d: 0.0002      # Learning Rate do Discriminador
+beta1: 0.5        # Adam Beta1 (0.5 is standard for GANs, different from the standard 0.9)
+beta2: 0.999
+
+# Pesos da Loss Function
+lambda_pixel: 100.0  # Weight of L1 loss (Content). 100x more important than realism in the beginning.
+
+checkpoint:
+  enabled: true
+  dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}/early_stopping
+  interval: 5
+  save_best: true
+
+early_stopping:
+  enabled: true
+  patience: 10
+  delta: 0.001
+  mode: 'min'
