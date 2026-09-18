@@ -10,7 +10,7 @@ dataset:
   _target_: ainpp_pb_latam.datasets.gsmap.AINPPPBLATAMDataset
   
   # Path to the Zarr store
-  zarr_path: "/prj/ideeps/adriano.almeida/data/ainpp/legacy/AINPP-PB-LATAM.zarr"
+  zarr_path: "/content/drive/MyDrive/AINPP/AINPP-PB-LATAM-SAMPLE.zarr"
   
   # --------------------------------------------------------------------------
   # Global Variables (Interpolation)
