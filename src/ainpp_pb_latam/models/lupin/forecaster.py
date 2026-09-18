@@ -62,11 +62,12 @@ def _load_submodule_checkpoint(
     raw_state = torch.load(checkpoint_path, map_location="cpu")
 
     candidates = [f"{submodule_key}."] + list(legacy_prefixes)
-    last_error: Optional[Exception] = None
+    empty_prefixes = []
 
     for prefix in candidates:
         nested = _strip_prefix(raw_state, prefix)
         if not nested:
+            empty_prefixes.append(prefix)
             continue
         try:
             submodule.load_state_dict(nested, strict=True)
@@ -76,13 +77,25 @@ def _load_submodule_checkpoint(
             )
             return
         except RuntimeError as exc:
-            # Keys matched the prefix but shapes didn't (e.g. `features`
-            # differs between stages) — remember and keep trying, then
-            # surface a single actionable error if every candidate fails.
-            last_error = exc
+            # Keys matched this prefix, so this checkpoint almost certainly
+            # *is* in this layout — the failure is a parameter-shape
+            # mismatch, not a wrong-format guess. Surface it immediately
+            # instead of silently falling through to weaker fallbacks
+            # (which are guaranteed to fail on key names and would only
+            # bury this more informative error under a confusing one).
+            raise ValueError(
+                f"Checkpoint '{checkpoint_path}' matches submodule "
+                f"'{submodule_key}' by parameter names (prefix '{prefix}'), "
+                f"but not by parameter shapes. This almost always means the "
+                f"checkpoint was trained with different architecture "
+                f"hyperparameters (e.g. a different `features` / "
+                f"`motion_features` / `afunet_features` list) than the ones "
+                f"configured for this run. Underlying error: {exc}"
+            ) from exc
 
-    # Fall back to treating the checkpoint as already being a bare state dict
-    # for this exact submodule (e.g. it was itself the top-level model).
+    # No candidate prefix matched any key at all -> this file may simply be
+    # a bare state dict for the submodule itself (e.g. it was trained as the
+    # top-level model). Try that, then give up with an honest message.
     try:
         submodule.load_state_dict(raw_state, strict=True)
         logger.info(
@@ -91,17 +104,13 @@ def _load_submodule_checkpoint(
         )
         return
     except RuntimeError as exc:
-        last_error = exc
-
-    raise ValueError(
-        f"Could not load checkpoint '{checkpoint_path}' into submodule "
-        f"'{submodule_key}'. Tried nested prefixes {candidates} and a flat "
-        f"load. This usually means the checkpoint was produced with a "
-        f"different `motion_features`/`afunet_features` (or `features`, for "
-        f"an `MFUNetForecaster` checkpoint) than the ones configured for "
-        f"this run — check that the two stages use matching architecture "
-        f"hyperparameters. Underlying error: {last_error}"
-    ) from last_error
+        raise ValueError(
+            f"Could not load checkpoint '{checkpoint_path}' into submodule "
+            f"'{submodule_key}'. None of the expected key prefixes "
+            f"{empty_prefixes} were found in it, and it doesn't match a bare "
+            f"state dict for this submodule either (underlying error: {exc}). "
+            f"Is this the right checkpoint file for '{submodule_key}'?"
+        ) from exc
 
 
 class BaseForecaster(nn.Module):
