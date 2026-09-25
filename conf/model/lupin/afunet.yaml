@@ -18,7 +18,7 @@ input_timesteps: ${input_timesteps}
 input_channels: 1
 output_timesteps: ${output_timesteps}
 output_channels: 1
-motion_features: [32, 64, 128, 256]   # deve casar com conf/model/lupin/mfunet.yaml
+motion_features: [64,128,256,512]   # deve casar com conf/model/lupin/mfunet.yaml
 afunet_features: [64, 128, 256, 512]
 kernel_size: 3
 bilinear: true
